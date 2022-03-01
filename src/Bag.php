@@ -1242,12 +1242,12 @@ class Bag
                     // Continuation of a line
                     if (count($bagData) > 0) {
                         $previousValue = $bagData[count($bagData) - 1]['value'];
-                        // Add a space only if the previous character was not a line break.
-                        $lastChar = substr($previousValue, -1);
                         if ($lineLength >= Bag::BAGINFO_AUTOWRAP_GUESS_LENGTH) {
                             // Line is max length or longer, should be autowrapped
                             $previousValue = rtrim($previousValue, "\r\n");
                         }
+                        // Add a space only if the previous character was not a line break.
+                        $lastChar = substr($previousValue, -1);
                         $previousValue .= ($lastChar != "\r" && $lastChar != "\n" ? " " : "");
                         $previousValue .= Bag::trimSpacesOnly($line);
                         $bagData[count($bagData) - 1]['value'] = $previousValue;

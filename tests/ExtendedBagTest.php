@@ -699,6 +699,73 @@ class ExtendedBagTest extends BagItTestFramework
     }
 
     /**
+     * Ensure that a bag-info that has continuation lines over 77 characters get autowrapped.
+     * @covers ::loadBagInfo
+     */
+    public function testBagInfoWithLongLinesContinued(): void
+    {
+        $expected = [
+            "tag" => "External-Description",
+            "value" => "This is the start of a very long information. This action will cause the line that comes" .
+                " next to be placed directly in line with above line, no newline."
+        ];
+        $this->tmpdir = $this->prepareExtendedTestBag();
+        // Alter the bag-info.txt
+        file_put_contents(
+            $this->tmpdir . DIRECTORY_SEPARATOR . 'bag-info.txt',
+            "External-Description: This is the start of a very long information.\n" .
+            "\tThis action will cause the line that comes " .
+            "next to be placed directly in line with above line, no newline.\n"
+        );
+        // Update the hash for bag-info.txt
+        file_put_contents(
+            $this->tmpdir . DIRECTORY_SEPARATOR . 'tagmanifest-sha1.txt',
+            "e1ab0f23f434ef3486ee5086f4218ad8aff91c28  bag-info.txt\n8010d7758f1793d0221c529fef818ff988dda141  " .
+            "bagit.txt\nfdead00cc124f82eef20c051e699518c43adc561  manifest-sha1.txt\n" .
+            "e939f78371e07a59c7a91e113618fd70cfa1e7ca  alt_tags/random_tags.txt\n"
+        );
+        $bag = Bag::load($this->tmpdir);
+        $this->assertTrue($bag->isValid());
+        $this->assertCount(0, $bag->getErrors());
+        $this->assertCount(1, $bag->getBagInfoData());
+        $this->assertArrayEquals($expected, $bag->getBagInfoData()[0]);
+    }
+
+    /**
+     * Ensure that a bag-info that has initial tag and continuation lines over 77 characters get autowrapped.
+     * @covers ::loadBagInfo
+     */
+    public function testBagInfoWithLongLinesBoth(): void
+    {
+        $expected = [
+            "tag" => "External-Description",
+            "value" => "This is the start of a very long information that" .
+                " is expected to wrap on to the next line eventually. This action will cause the line that comes" .
+                " next to be placed directly in line with above line, no newline."
+        ];
+        $this->tmpdir = $this->prepareExtendedTestBag();
+        // Alter the bag-info.txt
+        file_put_contents(
+            $this->tmpdir . DIRECTORY_SEPARATOR . 'bag-info.txt',
+            "External-Description: This is the start of a very long information that is expected to wrap on to " .
+            "the next line eventually.\n\tThis action will cause the line that comes " .
+            "next to be placed directly in line with above line, no newline.\n"
+        );
+        // Update the hash for bag-info.txt
+        file_put_contents(
+            $this->tmpdir . DIRECTORY_SEPARATOR . 'tagmanifest-sha1.txt',
+            "81bb4a1f34ef7f3a219f57f58bd9abad7799a76c  bag-info.txt\n8010d7758f1793d0221c529fef818ff988dda141  " .
+            "bagit.txt\nfdead00cc124f82eef20c051e699518c43adc561  manifest-sha1.txt\n" .
+            "e939f78371e07a59c7a91e113618fd70cfa1e7ca  alt_tags/random_tags.txt\n"
+        );
+        $bag = Bag::load($this->tmpdir);
+        $this->assertTrue($bag->isValid());
+        $this->assertCount(0, $bag->getErrors());
+        $this->assertCount(1, $bag->getBagInfoData());
+        $this->assertArrayEquals($expected, $bag->getBagInfoData()[0]);
+    }
+
+    /**
      * Ensure that MUST not repeat fields are flagged as errors on load
      * @covers ::loadBagInfo
      * @covers ::mustNotRepeatBagInfoExists
