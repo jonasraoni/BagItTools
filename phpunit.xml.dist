@@ -25,6 +25,7 @@
     </testsuite>
     <testsuite name="BagIt-Windows">
       <directory suffix=".php">./tests</directory>
+      <exclude>./tests/FetchTest.php</exclude>
       <exclude>./tests/BagItTestFramework.php</exclude>
     </testsuite>
   </testsuites>
